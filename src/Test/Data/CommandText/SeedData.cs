@@ -46,19 +46,23 @@ public static class SeedData
 
     public static readonly string SubGrade_1 =
         @"INSERT INTO SubGrades(
+            Id,
             CardId,
             Value,
             Description)
         VALUES(
+            1,
             1,
             10,
             'Auto')";
 
     public static readonly string CardDescriptor_1 =
         @"INSERT INTO CardDescriptors(
+            Id,
             CardId,
             Text)
         VALUES(
+            1,
             1,
             'HOF')";
 
@@ -77,9 +81,11 @@ public static class SeedData
     public static readonly string AssesmentNote_1 =
         @"INSERT INTO AssesmentNotes(
             Id,
+            CardId,
             AssesmentId,
             Text)
         VALUES(
+            1,
             1,
             1,
             '4 sharp corners')";
@@ -87,20 +93,24 @@ public static class SeedData
         public static readonly string AssesmentNote_2 =
         @"INSERT INTO AssesmentNotes(
             Id,
+            CardId,
             AssesmentId,
             Text)
         VALUES(
             2,
+            1,
             1,
             'Sharp edges, no dents or chipping')";
 
             public static readonly string AssesmentNote_3 =
         @"INSERT INTO AssesmentNotes(
             Id,
+            CardId,
             AssesmentId,
             Text)
         VALUES(
             3,
+            1,
             1,
             'Well centered')";
 }

@@ -30,6 +30,7 @@ public static class ReadTable
 
     public static readonly string SubGrades =
         @"SELECT
+        Id,
         CardId,
         Value,
         Description
@@ -37,6 +38,7 @@ public static class ReadTable
 
     public static readonly string CardDescriptors =
         @"SELECT
+        Id,
         CardId,
         Text
         FROM CardDescriptors";
@@ -52,16 +54,8 @@ public static class ReadTable
     public static readonly string AssesmentNotes =
         @"SELECT
         Id,
+        CardId,
         AssesmentId,
         Text
         FROM AssesmentNotes";
-
-    public static readonly string CardCommands =
-        @"SELECT
-        Id,
-        PartType,
-        Count,
-        Command
-        FROM CardCommands
-        ORDER BY Id";
 }

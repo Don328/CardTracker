@@ -27,13 +27,15 @@ public static class CreateTable
 
     public static readonly string SubGrades =
         @"CREATE TABLE SubGrades (
-            CardId          INTEGER PRIMARY KEY,
+            Id              INTEGER PRIMARY KEY,
+            cardId          INTEGER NOT NULL,
             Value           REAL NOT NULL,
             Description     VARCHAR(255) NOT NULL)";
 
     public static readonly string CardDescriptors =
         @"CREATE TABLE CardDescriptors (
-            CardId      INTEGER PRIMARY KEY,
+            Id          INTEGER PRIMARY KEY,
+            CardId      INTEGER NOT NULL,
             Text        VARCHAR(255) NOT NULL)";
 
     public static readonly string CardAssesments =
@@ -46,6 +48,7 @@ public static class CreateTable
     public static readonly string AssesmentNotes =
         @"CREATE TABLE AssesmentNotes (
             Id                  INTEGER PRIMARY KEY,
+            CardId              INTEGER NOT NULL,
             AssesmentId         INTEGER NOT NULL,
             Text                VARCHAR NOT NULL)";
 
