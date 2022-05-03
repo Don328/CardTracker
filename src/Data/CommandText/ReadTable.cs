@@ -55,4 +55,13 @@ public static class ReadTable
         AssesmentId,
         Text
         FROM AssesmentNotes";
+
+    public static readonly string CardCommands =
+        @"SELECT
+        Id,
+        PartType,
+        Count,
+        Command
+        FROM CardCommands
+        ORDER BY Id";
 }

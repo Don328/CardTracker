@@ -1,3 +1,4 @@
+using System.Data;
 using System.Data.Common;
 using Data.CommandText;
 using Data.Enums;
@@ -28,12 +29,89 @@ public class CardTrackerContext
         // Depends on `ReadAssesmentNotes()`
         ReadCardAssesments();
 
-
         // Depends on `ReadSubGrades()`
         ReadGrades();
         
         // Depends on all previous `Read()` methods;
         ReadCards();
+    }
+
+    public void CreateCard(Card card)
+    {
+        var command = connection.CreateCommand();
+        command.CommandText = CreateRow.Card;
+        AddParameter(command, "@setId", card.SetId);
+        AddParameter(command, "@name", card.Name);
+        AddParameter(
+            command, "@cardNumberInSet", card.CardNumberInSet);
+        AddParameter(command, "@insertName", card.InsertName);
+        AddParameter(command, "@status", (int)card.Status);
+
+        long cardId = (long)command.ExecuteScalar();
+        card.Id = (int)cardId;
+
+        ReadCards();
+    }
+
+    public void UpdateCardStatus(
+        int cardId, CardStatus status)
+    {
+        var command = connection.CreateCommand();
+        command.CommandText = UpdateEntry.CardStatus;
+        AddParameter(command, "@id", cardId);
+        AddParameter(command, "@status", status);
+        command.ExecuteNonQuery();
+
+        ReadCards();
+    }
+
+    public void DeleteCard(int cardId)
+    {
+        var command = connection.CreateCommand();
+        command.CommandText = DeleteRow.Card;
+        AddParameter(command, "@id", cardId);
+        command.ExecuteNonQuery();
+
+        ReadCards();
+    }
+
+    private void AddParameter(
+        DbCommand cmd,
+        string name,
+        object value)
+    {
+        var p = cmd.CreateParameter();
+        if (value == null)
+        {
+            throw new ArgumentNullException("value");
+        }
+
+        var type = value.GetType();
+
+        if (type == typeof(int))
+            p.DbType = DbType.Int32;
+        else if (type == typeof(string))
+            p.DbType = DbType.String;
+        else if (type == typeof(CardStatus))
+            p.DbType = DbType.Int32;
+        else if (type == typeof(GradingVender))
+            p.DbType = DbType.Int32;
+        else if (type == typeof(Sport))
+            p.DbType = DbType.Int32;
+        else if (type == typeof(DateTime))
+            p.DbType = DbType.DateTime;
+        else if (type == typeof(DateOnly))
+            p.DbType = DbType.DateTime;
+        else
+            throw new ArgumentException(
+                $"Unrecognized Type: {type}");
+
+
+        p.Direction = ParameterDirection.Input;
+        p.ParameterName = name;
+        p.Value = value;
+        cmd.Parameters.Add(p);
+
     }
 
     private void ReadSets()
