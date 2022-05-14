@@ -1,6 +1,7 @@
 using Data;
 using Data.Enums;
 using Data.Models;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,16 +9,16 @@ using Xunit;
 
 namespace Test.Data;
 
-public class Seed : IClassFixture<CardTrackerFixture>
+public class DbSeedTest : IClassFixture<CardTrackerFixture>
 {
     private CardTrackerFixture fixture;
-    private CardTrackerContext context;
+    private ICardTrackerContext context;
 
-    public Seed(CardTrackerFixture fixture)
+    public DbSeedTest(CardTrackerFixture fixture)
     {
         this.fixture = fixture;
-        this.context = new 
-            CardTrackerContext(fixture.Connection);
+        this.context = fixture.Services
+            .GetRequiredService<ICardTrackerContext>();
     }
 
     [Fact]

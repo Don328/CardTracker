@@ -3,12 +3,13 @@ using System.Data.Common;
 using Data.CommandText;
 using Data.Enums;
 using Data.Models;
+using Microsoft.Data.Sqlite;
 
 namespace Data;
 
-public class CardTrackerContext
+public class SqliteSchemaContext : ICardTrackerContext
 {
-    private DbConnection connection;
+    private SqliteConnection connection;
 
     public IEnumerable<Card> Cards { get; private set; }
     public IEnumerable<CardSet> Sets { get; private set; }
@@ -18,9 +19,10 @@ public class CardTrackerContext
     public IEnumerable<CardAssesment> Assesments { get; set; }
     public IEnumerable<AssesmentNote> AssesmentNotes { get; set; }
 
-    public CardTrackerContext(DbConnection conn)
+    public SqliteSchemaContext(SqliteConnection conn)
     {
         connection = conn;
+        conn.Open();
         ReadSets();
         ReadSubGrades();
         ReadCardDescriptors();
@@ -31,12 +33,12 @@ public class CardTrackerContext
 
         // Depends on `ReadSubGrades()`
         ReadGrades();
-        
+
         // Depends on all previous `Read()` methods;
         ReadCards();
     }
 
-#region Create Row Methods
+    #region Create Row Methods
     public void CreateCard(Card card)
     {
         var command = connection.CreateCommand();
@@ -80,9 +82,9 @@ public class CardTrackerContext
 
         var command = connection.CreateCommand();
         command.CommandText = CreateRow.Grade;
-        AddParameter(command,"@cardId", grade.CardId);
-        AddParameter(command,"@value", grade.Value);
-        AddParameter(command,"@vender", grade.Vender);
+        AddParameter(command, "@cardId", grade.CardId);
+        AddParameter(command, "@value", grade.Value);
+        AddParameter(command, "@vender", grade.Vender);
         command.ExecuteNonQuery();
 
         ReadGrades();
@@ -100,7 +102,7 @@ public class CardTrackerContext
 
         long subGradeId = (long)command.ExecuteScalar();
         subGrade.Id = (int)subGradeId;
-        
+
         ReadSubGrades();
         ReadGrades();
         ReadCards();
@@ -115,11 +117,11 @@ public class CardTrackerContext
 
         long descriptorId = (long)command.ExecuteScalar();
         descriptor.Id = (int)descriptorId;
-        
+
         ReadCardDescriptors();
         ReadCards();
     }
-    
+
     public void CreateAssesment(CardAssesment assesment)
     {
         var command = connection.CreateCommand();
@@ -130,18 +132,18 @@ public class CardTrackerContext
 
         long assesmentId = (long)command.ExecuteScalar();
         assesment.Id = (int)assesmentId;
-        
+
         ReadCardAssesments();
         ReadCards();
     }
-    
+
     public void CreateAssesmentNote(AssesmentNote note)
     {
         var command = connection.CreateCommand();
         command.CommandText = CreateRow.Note;
-        AddParameter(command,"@assesmentId", note.AssesmentId);
-        AddParameter(command,"@cardId", note.CardId);
-        AddParameter(command,"@text", note.Text);
+        AddParameter(command, "@assesmentId", note.AssesmentId);
+        AddParameter(command, "@cardId", note.CardId);
+        AddParameter(command, "@text", note.Text);
 
         long noteId = (long)command.ExecuteScalar();
         note.Id = (int)noteId;
@@ -150,9 +152,9 @@ public class CardTrackerContext
         ReadCardAssesments();
     }
 
-#endregion
+    #endregion
 
-#region Delete Row methods
+    #region Delete Row methods
     public void DeleteCard(int cardId)
     {
         var command = connection.CreateCommand();
@@ -173,7 +175,7 @@ public class CardTrackerContext
         ReadSets();
         ReadCards();
     }
-    
+
     public void DeleteGrade(int cardId)
     {
         var command = connection.CreateCommand();
@@ -230,7 +232,7 @@ public class CardTrackerContext
         ReadCardAssesments();
         ReadCards();
     }
-#endregion
+    #endregion
 
     public void UpdateCardStatus(
         int cardId, CardStatus status)
@@ -244,7 +246,7 @@ public class CardTrackerContext
         ReadCards();
     }
 
-#region Table Readers
+    #region Table Readers
     private void ReadSets()
     {
         using (var command = connection.CreateCommand())
@@ -266,7 +268,7 @@ public class CardTrackerContext
                         Sport = (Sport)reader.GetInt32(4),
                     });
                 }
-            }
+            };
         }
     }
 
@@ -282,7 +284,8 @@ public class CardTrackerContext
 
                 while (reader.Read())
                 {
-                    subGrades.Add(new SubGrade(){
+                    subGrades.Add(new SubGrade()
+                    {
                         Id = reader.GetInt32(0),
                         CardId = reader.GetInt32(1),
                         Value = reader.GetDouble(2),
@@ -316,7 +319,7 @@ public class CardTrackerContext
                         from g in SubGrades
                         where g.CardId == grade.CardId
                         select g).ToArray();
-                    
+
                     grades.Add(grade);
                 }
             }
@@ -345,7 +348,7 @@ public class CardTrackerContext
             }
         }
     }
-    
+
     private void ReadAssesmentNotes()
     {
         using (var command = connection.CreateCommand())
@@ -356,7 +359,7 @@ public class CardTrackerContext
                 var notes = new List<AssesmentNote>();
                 AssesmentNotes = notes;
 
-                while(reader.Read())
+                while (reader.Read())
                 {
                     notes.Add(new AssesmentNote()
                     {
@@ -372,7 +375,7 @@ public class CardTrackerContext
 
     private void ReadCardAssesments()
     {
-        using (var command  = connection.CreateCommand())
+        using (var command = connection.CreateCommand())
         {
             command.CommandText = ReadTable.CardAssesments;
             using (var reader = command.ExecuteReader())
@@ -389,7 +392,7 @@ public class CardTrackerContext
                         Date = reader.GetDateTime(2),
                         GradeEstimate = reader.GetDouble(3)
                     };
-                    
+
                     assesment.Notes = (
                         from n in AssesmentNotes
                         where n.AssesmentId == assesment.Id
@@ -410,7 +413,7 @@ public class CardTrackerContext
             {
                 var cards = new List<Card>();
                 Cards = cards;
-                
+
                 while (reader.Read())
                 {
                     var card = new Card()
@@ -425,23 +428,23 @@ public class CardTrackerContext
 
                     card.Set = Sets.Single(s => s.Id == card.SetId);
                     card.Grade = Grades.FirstOrDefault(g => g.CardId == card.Id);
-                    
-                    card.Descriptors = 
+
+                    card.Descriptors =
                         (from d in CardDescriptors
-                        where d.CardId == card.Id
-                        select d).ToArray();
+                         where d.CardId == card.Id
+                         select d).ToArray();
 
                     card.Assesments =
                         (from a in Assesments
-                        where a.CardId == card.Id
-                        select a).ToArray();
+                         where a.CardId == card.Id
+                         select a).ToArray();
 
-                    cards.Add(card);                   
+                    cards.Add(card);
                 }
             }
         }
     }
-#endregion
+    #endregion
 
     private void AddParameter(
         DbCommand cmd,

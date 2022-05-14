@@ -4,6 +4,11 @@ namespace Test.Data.CommandText;
 
 public static class SeedData
 {
+    public static readonly string Created =
+        @"INSERT INTO 
+            Created(IsCrated)
+            VALUES(1)";
+
     public static readonly string Card_1 =
         @"INSERT INTO Cards(
             Id,
