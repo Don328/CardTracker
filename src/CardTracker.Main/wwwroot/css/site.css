@@ -1,3 +1,58 @@
+header{
+    width:100%;
+}
+
+    header .container {
+    }
+
+body {
+    background: #3E3E3E;
+    color: #d0d0d0;
+    width: 95%;
+    z-index: 1000;
+    padding: 2rem 1rem 1rem 1rem;
+}
+
+
+.nav-menu {
+    width:100%;
+    float: right;
+    list-style:none;
+
+}
+
+.nav-menu li {
+    float:right;
+    display:block;
+    font-weight:bold;
+    margin:0 .5rem;
+}
+
+
+.nav-menu-item {
+    font-size: large;
+    color: Silver;
+    padding: .5em;
+    text-align:center;
+    border-width:.1rem;
+    border-radius:2rem;
+    border:solid;
+    padding:.3rem 1rem;
+    border-color:#7C7C7C;
+}
+
+.nav-menu-item:hover {
+    background:#1D1D1D;
+    color:#7C7C7C;
+    border-color:Black;
+}
+
+
+.title {
+    text-align: center;
+    font-size: xx-large;
+}
+
 #blazor-error-ui {
     background: lightyellow;
     bottom: 0;
